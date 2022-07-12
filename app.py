@@ -93,13 +93,12 @@ def change_post(post_id):
         abort(404)
     if not request.json:
         abort(400)
-    if 'title' in request.json:
-        if not isinstance(request.json['title'], str) or not len(request.json['title']):
-            abort(400)
+    if not isinstance(request.json['title'], str) or not len(request.json['title']):
+        abort(400)
     if isinstance(request.json['short description'], str) or not len(request.json['short description']):
-            abort(400)
+        abort(400)
     if not isinstance(request.json['content'], str) or not len(request.json['content']):
-            abort(400)
+        abort(400)
     post[0]['title'] = request.json.get('title', post[0]['title'])
     post[0]['short description'] = request.json.get('short description', post[0]['short description'])
     post[0]['content'] = request.json.get('content', post[0]['content'])
