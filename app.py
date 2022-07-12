@@ -90,22 +90,18 @@ def create_post():
 def change_post(post_id):
     post = list(filter(lambda p: p['id'] == post_id, posts))
     if not len(post):
-        abort(4004)
+        abort(404)
     if not request.json:
         abort(400)
-    if 'author' in request.json:
-        if not isinstance(request.json['author'], str) or not len(request.json['author']):
-            abort(400)
     if 'title' in request.json:
-        if not isinstance(request.json(['title']), str) or not len(request.json['title']):
+        if not isinstance(request.json['title'], str) or not len(request.json['title']):
             abort(400)
-    if 'short description' in request.json:
-        if not isinstance(request.json(['short description']), str) or not len(request.json['short description']):
+    if 'short description' in request.json and not isinstance(request.json['short description'], str):
+        if not len(request.json['short description']):
             abort(400)
-    if 'content' in request.json:
-        if not isinstance(request.json(['content']), str) or not len(request.json['content']):
+    if 'content' in request.json and not isinstance(request.json['content'], str):
+        if not len(request.json['content']):
             abort(400)
-    post[0]['author'] = request.json.get('author', post[0]['author'])
     post[0]['title'] = request.json.get('title', post[0]['title'])
     post[0]['short description'] = request.json.get('short description', post[0]['short description'])
     post[0]['content'] = request.json.get('content', post[0]['content'])
