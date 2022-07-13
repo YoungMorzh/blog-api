@@ -5,6 +5,8 @@ from flask_httpauth import HTTPBasicAuth
 app = Flask(__name__)
 
 
+list(map(lambda p: func, post))
+
 # TODO: изменить ключ short description на ключ без пробела
 posts = [
     {
