@@ -5,6 +5,7 @@ from flask_httpauth import HTTPBasicAuth
 app = Flask(__name__)
 
 
+# TODO: изменить ключ short description на ключ без пробела
 posts = [
     {
         'id': 1,
@@ -47,6 +48,8 @@ def bad_request(error):
     return make_response(jsonify({'error': 'Bad request'}), 400)
 
 
+# TODO: 500-я ошибка после удаления 1-го поста
+# TODO: переделать реализацию на доп. функцию для поста
 @app.route('/blog/api/v1.0/posts', methods=['GET'])
 def get_posts():
     short_posts = posts.copy()
@@ -55,6 +58,7 @@ def get_posts():
     return jsonify({'posts': short_posts})
 
 
+# TODO: нет контента
 @app.route('/blog/api/v1.0/posts/<int:post_id>', methods=['GET'])
 def get_post(post_id):
     post = list(filter(lambda p: p['id'] == post_id, posts))
@@ -65,6 +69,8 @@ def get_post(post_id):
     return jsonify({'post': short_post})
 
 
+# TODO: 500-я ошибка на { "author": "Dora", "title": "Article" }
+# TODO: сделать title и content обязательными
 @app.route('/blog/api/v1.0/posts', methods=['POST'])
 @auth.login_required
 def create_post():
@@ -90,6 +96,8 @@ def create_post():
     return jsonify({'post': post}), 201
 
 
+# TODO: 500-я ошибка на { "author": "Dora", "title": "Article" }
+# TODO: добавить изменения автора
 @app.route('/blog/api/v1.0/posts/<int:post_id>', methods=['PUT'])
 @auth.login_required
 def change_post(post_id):
@@ -110,6 +118,7 @@ def change_post(post_id):
     return jsonify({'post': post[0]})
 
 
+# TODO: ломает получение всех постов
 @app.route('/blog/api/v1.0/posts/<int:post_id>', methods=['DELETE'])
 @auth.login_required
 def delete_post(post_id):
