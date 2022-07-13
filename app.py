@@ -49,7 +49,10 @@ def bad_request(error):
 
 @app.route('/blog/api/v1.0/posts', methods=['GET'])
 def get_posts():
-    return jsonify({'posts': posts})
+    short_posts = posts.copy()
+    for p in short_posts:
+        p.pop('content')
+    return jsonify({'posts': short_posts})
 
 
 @app.route('/blog/api/v1.0/posts/<int:post_id>', methods=['GET'])
@@ -57,7 +60,9 @@ def get_post(post_id):
     post = list(filter(lambda p: p['id'] == post_id, posts))
     if len(post) == 0:
         abort(404)
-    return jsonify({'post': post[0]})
+    short_post = post[0].copy()
+    short_post.pop('short description')
+    return jsonify({'post': short_post})
 
 
 @app.route('/blog/api/v1.0/posts', methods=['POST'])
