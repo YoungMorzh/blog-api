@@ -88,7 +88,7 @@ def create_post():
         if not isinstance(request.json['title'], str) or not len(request.json['title']):
             abort(400)
     if 'ShortDescription' in request.json:
-        if not isinstance(request.json['short_description'], str) or not len(request.json['short_description']):
+        if not isinstance(request.json['short_description'], str):
             abort(400)
     if 'content' in request.json:
         if not isinstance(request.json['content'], str) or not len(request.json['content']):
