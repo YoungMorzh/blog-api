@@ -24,7 +24,7 @@ python3 -m pip install --user virtualenv
 
 ```bash
 chmod a+x install.sh
-./ install.sh
+./install.sh
 chmod a+x run.sh
 ```
 
@@ -42,7 +42,7 @@ chmod a+x run.sh
 
 Креды: user `admin`, password `password`
 
-Все ресурсы защищены BasicAuth.
+Методы POST,PUT,DELETE защищены BasicAuth.
 
 #### Модели.
 
@@ -52,27 +52,27 @@ chmod a+x run.sh
 {
   "id": int,                    // Идентификационный номер поста.
   "author": str,                // автор поста.
-  "title": str,                 // оглавление поста.
+  "title": str,                 // заголовок поста.
   "short_description": str,     // краткое описание поста.
   "content": str,               // контент поста.
 }
 ```
 
-##### Short_posts
-
-```
-{
-    "author": str,                // автор поста.
-    "title": str,                 // оглавление поста.
-    "short_description": str,     // краткое описание поста.
-}
-```
 ##### Short_post
 
 ```
 {
     "author": str,                // автор поста.
-    "title": str,                 // оглавление поста.
+    "title": str,                 // заголовок поста.
+    "short_description": str,     // краткое описание поста.
+}
+```
+##### Full_post
+
+```
+{
+    "author": str,                // автор поста.
+    "title": str,                 // заголовок поста.
     "content": str,               // контент поста.
 }
 ```
@@ -88,13 +88,13 @@ Response:
 
 ```
 {
-  "posts": [Short_posts]
+  "posts": [Short_post]
 }
 ```
 
 ##### Получение поста.
 
-URl: `http://localhost:5000/blog/api/v1.0/tasks/<int:post_id>`
+URl: `http://localhost:5000/blog/api/v1.0/posts/<int:post_id>`
 
 Method: `GET`
 
@@ -102,7 +102,7 @@ Response:
 
 ```
 {
-    "post": [Short_post]
+    "post": Full_post
 }
 ```
 
@@ -131,13 +131,14 @@ Response:
 
 ```
 {
-  "post": [post]  // добавленный пост.
+  "post": post  // добавленный пост.
 }
 ```
 
 Errors:
 
 `400` - Невалидные данные.
+`401` - Ошибка авторизации.
 
 ##### Изменение поста.
 
@@ -149,10 +150,10 @@ Data:
 
 ```
 {
-  "author" str,             // изменённый автор поста, не пустая строка, обязательное поле.
-  "title": str,             // изменённое оглавление поста, не пустая строка, обязательное поле.
+  "author" str,             // изменённый автор поста, не пустая строка, не обязательное поле.
+  "title": str,             // изменённое оглавление поста, не пустая строка, не обязательное поле.
   "short_description": str, // изменённое краткое описание, не обязательное поле.
-  "content": str,           // изменённый контент поста, не пустая строка, обязательное поле.
+  "content": str,           // изменённый контент поста, не пустая строка, не обязательное поле.
 }
 ```
 
@@ -160,7 +161,7 @@ Response:
 
 ```
 {
-    "post": [post]  // изменённый пост.
+    "post": post  // изменённый пост.
 }
 ```
 
@@ -169,6 +170,8 @@ Errors:
 `404` пост не найден.
 
 `400` Невалидные данные.
+
+`401` - Ошибка авторизации.
 
 ##### Удаление поста.
 
@@ -187,3 +190,5 @@ Response:
 Errors:
 
 `404` Пост не найден.
+
+`401` - Ошибка авторизации.

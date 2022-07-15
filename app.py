@@ -5,16 +5,18 @@ from flask_httpauth import HTTPBasicAuth
 app = Flask(__name__)
 
 
-def make_short_posts(post):
+def make_short_post(post):
     return{
+        "id": post['id'],
         "author": post['author'],
         "title": post['title'],
         "short_description": post['short_description']
     }
 
 
-def make_short_post(post):
+def make_full_post(post):
     return{
+        "id": post['id'],
         "author": post['author'],
         "title": post['title'],
         "content": post['content']
@@ -65,7 +67,7 @@ def bad_request(error):
 
 @app.route('/blog/api/v1.0/posts', methods=['GET'])
 def get_posts():
-    return jsonify({'posts': list(map(make_short_posts, posts))})
+    return jsonify({'posts': list(map(make_short_post, posts))})
 
 
 @app.route('/blog/api/v1.0/posts/<int:post_id>', methods=['GET'])
@@ -73,7 +75,7 @@ def get_post(post_id):
     post = list(filter(lambda p: p['id'] == post_id, posts))
     if len(post) == 0:
         abort(404)
-    return jsonify({'post': make_short_post(post[0])})
+    return jsonify({'post': make_full_post(post[0])})
 
 
 @app.route('/blog/api/v1.0/posts', methods=['POST'])
@@ -81,25 +83,31 @@ def get_post(post_id):
 def create_post():
     if not request.json:
         abort(400)
+    if 'author' not in request.json:
+        abort(400)
+    if 'title' not in request.json:
+        abort(400)
+    if 'content' not in request.json:
+        abort(400)
     if 'author' in request.json:
         if not isinstance(request.json['author'], str) or not len(request.json['author']):
             abort(400)
     if 'title' in request.json:
         if not isinstance(request.json['title'], str) or not len(request.json['title']):
             abort(400)
-    if 'ShortDescription' in request.json:
-        if not isinstance(request.json['short_description'], str):
+    if 'short_description' in request.json:
+        if not isinstance(request.json['short_description'], str) or not len(request.json['short_description']):
             abort(400)
     if 'content' in request.json:
         if not isinstance(request.json['content'], str) or not len(request.json['content']):
             abort(400)
 
     post = {
-        'id': posts[-1]['id'] + 1,
-        'author': request.json['author'],
-        'title': request.json['title'],
-        'short_description': request.json['short_description'],
-        'content': request.json['content']
+        'id':posts[-1]['id'] + 1,
+        'author':request.json['author'],
+        'title':request.json['title'],
+        'short_description':request.json.get('short_description', ''),
+        'content':request.json['content']
     }
     posts.append(post)
     return jsonify({'post': post}), 201
