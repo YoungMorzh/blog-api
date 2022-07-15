@@ -5,20 +5,37 @@ from flask_httpauth import HTTPBasicAuth
 app = Flask(__name__)
 
 
-# TODO: изменить ключ short description на ключ без пробела
+def make_short_post(post):
+    return{
+        "id": post['id'],
+        "author": post['author'],
+        "title": post['title'],
+        "short_description": post['short_description']
+    }
+
+
+def make_full_post(post):
+    return{
+        "id": post['id'],
+        "author": post['author'],
+        "title": post['title'],
+        "content": post['content']
+    }
+
+
 posts = [
     {
         'id': 1,
         'author': 'admin',
         'title': 'My project',
-        'short description': 'Creation of this project',
+        'short_description': 'Creation of this project',
         'content': 'In this project i will create a blog...'
     },
     {
         'id': 2,
         'author': 'admin',
         'title': 'Python 3.8.10',
-        'short description': 'How install python 3.8.10',
+        'short_description': 'How install python 3.8.10',
         'content': 'Open site www.python.org and install python...'
     }
 ]
@@ -48,56 +65,54 @@ def bad_request(error):
     return make_response(jsonify({'error': 'Bad request'}), 400)
 
 
-# TODO: 500-я ошибка после удаления 1-го поста
-# TODO: переделать реализацию на доп. функцию для поста
 @app.route('/blog/api/v1.0/posts', methods=['GET'])
 def get_posts():
-    short_posts = posts.copy()
-    for p in short_posts:
-        p.pop('content')
-    return jsonify({'posts': short_posts})
+    return jsonify({'posts': list(map(make_short_post, posts))})
 
 
-# TODO: нет контента
 @app.route('/blog/api/v1.0/posts/<int:post_id>', methods=['GET'])
 def get_post(post_id):
     post = list(filter(lambda p: p['id'] == post_id, posts))
     if len(post) == 0:
         abort(404)
-    short_post = post[0].copy()
-    short_post.pop('short description')
-    return jsonify({'post': short_post})
+    return jsonify({'post': make_full_post(post[0])})
 
 
-# TODO: 500-я ошибка на { "author": "Dora", "title": "Article" }
-# TODO: сделать title и content обязательными
 @app.route('/blog/api/v1.0/posts', methods=['POST'])
 @auth.login_required
 def create_post():
-    if not request.json or 'author' not in request.json:
+    if not request.json:
         abort(400)
-    if not isinstance(request.json['author'], str) or not len(request.json['author']):
+    if 'author' not in request.json:
         abort(400)
-    if not isinstance(request.json['title'], str) or not len(request.json['title']):
+    if 'title' not in request.json:
         abort(400)
-    if not isinstance(request.json['short description'], str) or not len(request.json['short description']):
+    if 'content' not in request.json:
         abort(400)
-    if not isinstance(request.json['content'], str) or not len(request.json['content']):
-        abort(400)
+    if 'author' in request.json:
+        if not isinstance(request.json['author'], str) or not len(request.json['author']):
+            abort(400)
+    if 'title' in request.json:
+        if not isinstance(request.json['title'], str) or not len(request.json['title']):
+            abort(400)
+    if 'short_description' in request.json:
+        if not isinstance(request.json['short_description'], str) or not len(request.json['short_description']):
+            abort(400)
+    if 'content' in request.json:
+        if not isinstance(request.json['content'], str) or not len(request.json['content']):
+            abort(400)
 
     post = {
-        'id': posts[-1]['id'] + 1,
-        'author': request.json['author'],
-        'title': request.json['title'],
-        'short description': request.json['short description'],
-        'content': request.json['content']
+        'id':posts[-1]['id'] + 1,
+        'author':request.json['author'],
+        'title':request.json['title'],
+        'short_description':request.json.get('short_description', ''),
+        'content':request.json['content']
     }
     posts.append(post)
     return jsonify({'post': post}), 201
 
 
-# TODO: 500-я ошибка на { "author": "Dora", "title": "Article" }
-# TODO: добавить изменения автора
 @app.route('/blog/api/v1.0/posts/<int:post_id>', methods=['PUT'])
 @auth.login_required
 def change_post(post_id):
@@ -106,19 +121,25 @@ def change_post(post_id):
         abort(404)
     if not request.json:
         abort(400)
-    if not isinstance(request.json['title'], str) or not len(request.json['title']):
-        abort(400)
-    if not isinstance(request.json['short description'], str) or not len(request.json['short description']):
-        abort(400)
-    if not isinstance(request.json['content'], str) or not len(request.json['content']):
-        abort(400)
+    if 'author' in request.json:
+        if not isinstance(request.json['author'], str) or not len(request.json['author']):
+            abort(400)
+    if 'title' in request.json:
+        if not isinstance(request.json['title'], str) or not len(request.json['title']):
+            abort(400)
+    if 'short_description' in request.json:
+        if not isinstance(request.json['short_description'], str):
+            abort(400)
+    if 'content' in request.json:
+        if not isinstance(request.json['content'], str) or not len(request.json['content']):
+            abort(400)
+    post[0]['author'] = request.json.get('author', post[0]['author'])
     post[0]['title'] = request.json.get('title', post[0]['title'])
-    post[0]['short description'] = request.json.get('short description', post[0]['short description'])
+    post[0]['short_description'] = request.json.get('short_description', post[0]['short_description'])
     post[0]['content'] = request.json.get('content', post[0]['content'])
     return jsonify({'post': post[0]})
 
 
-# TODO: ломает получение всех постов
 @app.route('/blog/api/v1.0/posts/<int:post_id>', methods=['DELETE'])
 @auth.login_required
 def delete_post(post_id):
